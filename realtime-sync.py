@@ -17,7 +17,7 @@ MINIO_ENDPOINT = "127.0.0.1:9000"
 MINIO_ACCESS_KEY = "minioadmin"
 MINIO_SECRET_KEY = "minioadmin123"
 MINIO_BUCKET = "xsky-data"
-JUICEFS_MOUNT_POINT = "./data/xsky-mount"
+JUICEFS_MOUNT_POINT = "/tmp/s3_xsky_mount"
 CHECK_INTERVAL = 10  # 检查间隔（秒）
 
 # 设置日志

@@ -10,7 +10,7 @@ MINIO_ENDPOINT="127.0.0.1:9000"
 MINIO_BUCKET="xsky-data"
 MINIO_ACCESS_KEY="minioadmin"
 MINIO_SECRET_KEY="minioadmin123"
-JUICEFS_MOUNT_POINT="./data/xsky-mount"
+JUICEFS_MOUNT_POINT="/tmp/s3_xsky_mount"
 SYNC_INTERVAL=30  # 同步间隔（秒）
 
 # 日志文件

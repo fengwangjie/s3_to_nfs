@@ -17,10 +17,10 @@
 
    ```bash
    # 如果已挂载但权限不对，先卸载
-   sudo juicefs umount ./data/xsky-mount
+   sudo juicefs umount /tmp/s3_xsky_mount
 
    # 重新挂载，设置正确的用户权限
-   juicefs mount redis://127.0.0.1:6379/1 ./data/xsky-mount \
+   juicefs mount redis://127.0.0.1:6379/1 /tmp/s3_xsky_mount \
        --cache-dir ./data/s3-cache \
        --cache-size 1024 \
        --background \
@@ -36,7 +36,7 @@
 juicefs sync \
     --no-https \
     s3://minioadmin:minioadmin123@127.0.0.1:9000/xsky-data/ \
-    ./data/xsky-mount/ \
+    /tmp/s3_xsky_mount \
     --verbose
 ```
 
@@ -79,7 +79,7 @@ python3 realtime-sync.py
 
 2. 检查 JuiceFS 挂载点：
    ```bash
-   ls -la ./data/xsky-mount/
+   ls -la /tmp/s3_xsky_mount/
 ````
 
 ## 监控和日志
@@ -99,8 +99,8 @@ python3 realtime-sync.py
    mount | grep juicefs
 
    # 重新挂载
-   juicefs umount ./data/xsky-mount
-   juicefs mount redis://127.0.0.1:6379/1 ./data/xsky-mount
+   juicefs umount /tmp/s3_xsky_mount
+   juicefs mount redis://127.0.0.1:6379/1 /tmp/s3_xsky_mount
    ```
 
 2. **MinIO 连接失败**
@@ -126,7 +126,7 @@ python3 realtime-sync.py
 3. **并发同步**：使用 `--threads` 参数增加同步线程数
 
 ```bash
-juicefs sync --threads 10 s3://... ./data/xsky-mount/
+juicefs sync --threads 10 s3://... /tmp/s3_xsky_mount/
 ```
 
 ## 成
@@ -158,7 +158,7 @@ juicefs sync --threads 10 s3://... ./data/xsky-mount/
 
 3. **验证同步结果**：
    ```bash
-   ls -la ./data/xsky-mount/
+   ls -la /tmp/s3_xsky_mount/
    ```
 
 同步系统现在已经正常工作了！

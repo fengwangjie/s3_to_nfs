@@ -27,7 +27,7 @@
 | ------------ | ----------------------------- | ------------------------------- |
 | **MinIO**    | S3 兼容对象存储，模拟 XSky    | 端口: 9000 (API), 9001 (Web UI) |
 | **Redis**    | JuiceFS 元数据存储            | 端口: 6379                      |
-| **JuiceFS**  | 对象存储到 POSIX 文件系统转换 | 挂载点: `./data/xsky-mount`     |
+| **JuiceFS**  | 对象存储到 POSIX 文件系统转换 | 挂载点: `/tmp/s3_xsky_mount`     |
 | **同步脚本** | 自动同步 MinIO 数据到 JuiceFS | 支持一次性和持续同步            |
 
 ## 快速开始
@@ -62,7 +62,7 @@ juicefs format \
 mkdir -p data/xsky-mount data/s3-cache logs
 
 # 挂载 JuiceFS（注意权限设置）
-juicefs mount redis://127.0.0.1:6379/1 ./data/xsky-mount \
+juicefs mount redis://127.0.0.1:6379/1 /tmp/s3_xsky_mount \
     --cache-dir ./data/s3-cache \
     --cache-size 1024 \
     --background \
@@ -104,7 +104,7 @@ sudo mount -t nfs -o vers=4.0,ro,noresvport,intr,timeo=3,retrans=2 NFS_Server_IP
    ```bash
    juicefs sync --no-https \
        s3://minioadmin:minioadmin123@127.0.0.1:9000/xsky-data/ \
-       ./data/xsky-mount/ --verbose
+       /tmp/s3_xsky_mount/ --verbose
    ```
 
 2. **自动同步脚本**
@@ -127,7 +127,7 @@ sudo mount -t nfs -o vers=4.0,ro,noresvport,intr,timeo=3,retrans=2 NFS_Server_IP
 
 ```bash
 # 查看挂载点内容
-ls -la ./data/xsky-mount/
+ls -la /tmp/s3_xsky_mount/
 
 # 查看同步日志
 tail -f ./logs/sync-$(date +%Y%m%d).log
@@ -157,8 +157,8 @@ tail -f ./logs/sync-$(date +%Y%m%d).log
 
    ```bash
    # 重新挂载并设置正确权限
-   sudo juicefs umount ./data/xsky-mount
-   juicefs mount redis://127.0.0.1:6379/1 ./data/xsky-mount \
+   sudo juicefs umount /tmp/s3_xsky_mount
+   juicefs mount redis://127.0.0.1:6379/1 /tmp/s3_xsky_mount \
        --all-squash $(id -u):$(id -g) [其他参数...]
    ```
 
