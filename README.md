@@ -62,7 +62,7 @@ juicefs format \
 mkdir -p data/xsky-mount data/s3-cache logs
 
 # 挂载 JuiceFS（注意权限设置）
-juicefs mount redis://127.0.0.1:6379/1 /tmp/s3_xsky_mount \
+juicefs mount redis://127.0.0.1:6379/1 /Users/fengwangjie/nfs-exports/xsky-data \
     --cache-dir ./data/s3-cache \
     --cache-size 1024 \
     --background \
@@ -81,6 +81,31 @@ chmod +x sync-minio-to-juicefs.sh
 
 # 或启动持续同步（每30秒检查一次）
 ./sync-minio-to-juicefs.sh
+```
+
+### 5. 设置 NFS 服务
+
+```bash
+# 给 NFS 同步脚本执行权限
+chmod +x sync-to-nfs.sh
+
+# 完整设置 NFS 服务（同步数据 + 配置NFS + 测试）
+./sync-to-nfs.sh setup
+```
+
+### 6. 挂载 NFS 共享
+
+设置完成后，可以从任何支持 NFS 的客户端挂载：
+
+```bash
+# 创建挂载点
+sudo mkdir -p /mnt/xsky-data
+
+# 挂载 NFS 共享
+sudo mount -t nfs -o ro,noresvport localhost:/Users/$(whoami)/nfs-test-export /mnt/xsky-data
+
+# 查看挂载的数据
+ls -la /mnt/xsky-data/
 ```
 
 ### 5.挂载 NFS 共享
@@ -140,8 +165,11 @@ tail -f ./logs/sync-$(date +%Y%m%d).log
 ├── README.md                    # 项目说明
 ├── SYNC_GUIDE.md               # 详细同步指南
 ├── docker-compose.yml          # Docker 服务配置
-├── sync-minio-to-juicefs.sh    # Bash 同步脚本
+├── sync-minio-to-juicefs.sh    # MinIO 到 JuiceFS 同步脚本
+├── sync-to-nfs.sh              # JuiceFS 到 NFS 同步脚本
 ├── realtime-sync.py            # Python 实时监控脚本
+├── setup-nfs.sh                # NFS 服务设置脚本
+├── test-nfs-simple.sh          # NFS 简单测试脚本
 ├── com.xsky.minio-juicefs-sync.plist  # macOS 系统服务配置
 ├── data/
 │   ├── xsky-mount/             # JuiceFS 挂载点
@@ -194,3 +222,55 @@ tail -f ./logs/sync-$(date +%Y%m%d).log
 ## 更多信息
 
 详细的同步配置和使用说明请参考 [SYNC_GUIDE.md](./SYNC_GUIDE.md)。
+## NFS 服务设置
+
+### 完整的 NFS 设置流程
+
+1. **设置 NFS 导出**：
+   ```bash
+   ./sync-to-nfs.sh setup
+   ```
+
+2. **持续同步到 NFS**：
+   ```bash
+   ./sync-to-nfs.sh continuous
+   ```
+
+3. **手动同步**：
+   ```bash
+   ./sync-to-nfs.sh sync
+   ```
+
+### 客户端挂载
+
+从任何支持 NFS 的客户端挂载：
+
+```bash
+# 创建挂载点
+sudo mkdir -p /mnt/xsky-data
+
+# 挂载 NFS 共享
+sudo mount -t nfs -o ro,noresvport localhost:/Users/$(whoami)/nfs-test-export /mnt/xsky-data
+
+# 查看数据
+ls -la /mnt/xsky-data/
+```
+
+### 完整测试流程
+
+1. **上传文件到 MinIO** → http://localhost:9001
+2. **同步到 JuiceFS** → `./sync-minio-to-juicefs.sh --once`
+3. **同步到 NFS** → `./sync-to-nfs.sh sync`
+4. **通过 NFS 访问** → `ls -la /mnt/xsky-data/`
+
+## 成功案例
+
+系统已成功实现：
+- ✅ MinIO 对象存储服务
+- ✅ JuiceFS 文件系统挂载
+- ✅ 自动同步 MinIO → JuiceFS
+- ✅ 自动同步 JuiceFS → NFS 导出
+- ✅ NFS 服务配置和导出
+- ✅ 客户端 NFS 挂载测试
+
+数据流：**MinIO S3** → **JuiceFS** → **NFS Export** → **NFS Client**
